@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tetris Game</title>
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #f0f0f0;
+    }
+    #game-board {
+        border: 2px solid #000;
+    }
+    .row {
+        display: flex;
+    }
+    .cell {
+        width: 30px;
+        height: 30px;
+        border: 1px solid #ddd;
+        box-sizing: border-box;
+    }
+</style>
+</head>
+<body>
+<div id="game-board"></div>
+<script>
+    const WIDTH = 10;
+    const HEIGHT = 20;
+    let board = new Array(HEIGHT).fill().map(() => new Array(WIDTH).fill(0));
+    let piece = [
+        [0, 0, 0, 0],
+        [1, 1, 1, 1],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0]
+    ];
+    let pieceX, pieceY;
+
+    function newPiece() {
+        pieceX = WIDTH / 2 - 2;
+        pieceY = 0;
+    }
+
+    function drawBoard() {
+        let gameBoard = document.getElementById('game-board');
+        gameBoard.innerHTML = '';
+        for (let y = 0; y < HEIGHT; y++) {
+            let row = document.createElement('div');
+            row.className = 'row';
+            for (let x = 0; x < WIDTH; x++) {
+                let cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.style.backgroundColor = board[y][x] ? 'blue' : 'white';
+                row.appendChild(cell);
+            }
+            gameBoard.appendChild(row);
+        }
+    }
+
+    function updatePiece() {
+        for (let i = 0; i < 4; i++) {
+            for (let j = 0; j < 4; j++) {
+                if (piece[i][j]) {
+                    board[pieceY + i][pieceX + j] = piece[i][j];
+                }
+            }
+        }
+    }
+
+    function clearLines() {
+        for (let y = HEIGHT - 1; y >= 0; y--) {
+            let isRowFull = board[y].every(cell => cell);
+            if (isRowFull) {
+                board.splice(y, 1);
+                board.unshift(new Array(WIDTH).fill(0));
+            }
+        }
+    }
+
+    function movePieceDown() {
+        pieceY++;
+        if (pieceY + 4 > HEIGHT) {
+            updatePiece();
+            clearLines();
+            newPiece();
+        }
+    }
+
+    function movePieceLeft() {
+        if (pieceX > 0) {
+            pieceX--;
+        }
+    }
+
+    function movePieceRight() {
+        if (pieceX < WIDTH - 4) {
+            pieceX++;
+        }
+    }
+
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'ArrowDown') {
+            movePieceDown();
+        } else if (event.key === 'ArrowLeft') {
+            movePieceLeft();
+        } else if (event.key === 'ArrowRight') {
+            movePieceRight();
+        }
+        drawBoard();
+    });
+
+    newPiece();
+    setInterval(() => {
+        movePieceDown();
+        drawBoard();
+    }, 500);
+</script>
+</body>
+</html>
